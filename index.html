@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>La Tribu Studio</title>
+<style>
+body{margin:0;background:#000;font-family:Arial,sans-serif;color:#fff}
+#studio{
+position:relative;
+width:100vw;height:100vh;
+background:url('studio.png') center center/cover no-repeat;
+}
+.zone{position:absolute;cursor:pointer}
+#piano{left:5%;top:30%;width:28%;height:40%}
+#basse{left:31%;top:28%;width:12%;height:42%}
+#casque{left:63%;top:40%;width:15%;height:30%}
+#micro{left:78%;top:28%;width:12%;height:45%}
+#modal{
+display:none;position:fixed;inset:0;
+background:rgba(0,0,0,.85);
+justify-content:center;align-items:center;
+}
+.box{
+background:#111;padding:30px;border-radius:20px;
+max-width:600px;text-align:center
+}
+button{
+padding:12px 20px;margin:8px;border:none;border-radius:10px;
+cursor:pointer
+}
+</style>
+</head>
+<body>
+
+<div id="studio">
+<div id="piano" class="zone"></div>
+<div id="basse" class="zone"></div>
+<div id="casque" class="zone"></div>
+<div id="micro" class="zone"></div>
+</div>
+
+<div id="modal">
+<div class="box" id="content"></div>
+</div>
+
+<audio id="a1" src="piano.mp3" loop></audio>
+<audio id="a2" src="nonverbal.mp3" loop></audio>
+<audio id="a3" src="communaute.mp3" loop></audio>
+<audio id="a4" src="parler.mp3" loop></audio>
+
+<script>
+const qs=[
+{t:"ÉCOUTER",q:"Quelle attitude favorise la compréhension ?",a:["Parler vite","Écouter activement","Couper la parole"],c:1},
+{t:"NON VERBAL",q:"Quel élément influence le plus un message ?",a:["Le corps","La couleur","Le mobilier"],c:0},
+{t:"COMMUNAUTÉ",q:"Que renforce une relation durable ?",a:["La confiance","La pression","La compétition"],c:0},
+{t:"PARLER",q:"Pour avoir de l'impact il faut ?",a:["Être clair","Parler plus fort","Parler longtemps"],c:0}
+];
+
+const aud=[a1,a2,a3,a4];
+let started=false;
+let done=[false,false,false,false];
+
+function startAudio(){
+ if(started)return;
+ started=true;
+ aud.forEach(a=>{a.volume=0;a.play().catch(()=>{});});
+ a1.volume=1;
+}
+
+function ask(i){
+ document.getElementById('modal').style.display='flex';
+ let h='<h2>'+qs[i].t+'</h2><p>'+qs[i].q+'</p>';
+ qs[i].a.forEach((r,n)=>{
+   h+=`<button onclick="answer(${i},${n})">${r}</button><br>`;
+ });
+ content.innerHTML=h;
+}
+
+function answer(i,n){
+ if(n!==qs[i].c){alert('Essaie encore');return;}
+ startAudio();
+ done[i]=true;
+
+ if(done.filter(Boolean).length>=2)a2.volume=1;
+ if(done.filter(Boolean).length>=3)a3.volume=1;
+ if(done.filter(Boolean).length>=4)a4.volume=1;
+
+ modal.style.display='none';
+
+ if(done.every(Boolean)){
+   modal.style.display='flex';
+   content.innerHTML='<h1>🏆 TROPHÉE DE L HARMONIE</h1><p>Prends une photo de cet écran et envoie-la !</p>';
+ }
+}
+
+piano.onclick=()=>ask(0);
+basse.onclick=()=>ask(1);
+casque.onclick=()=>ask(2);
+micro.onclick=()=>ask(3);
+</script>
+</body>
+</html>
